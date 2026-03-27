@@ -1,0 +1,31 @@
+<div class="home-container">
+
+  <img
+    src="assets/logo-trouduc.png"
+    alt="Logo Trouduc"
+    class="logo" />
+
+  <h1>Trouduc Masters</h1>
+
+<p class="subtitle">
+  Une création de la société<br>
+  <span class="company">Mouzens Sport Drinking Games</span><br>
+  <span class="since-badge">Since 2019</span> 🍻
+</p>
+
+  <!-- Choix du nombre de joueurs -->
+  <div class="players-select">
+    <button mat-raised-button (click)="decrease()">-</button>
+    <span>{{ playersCount() }} joueurs</span>
+    <button mat-raised-button (click)="increase()">+</button>
+  </div>
+
+  <button
+    mat-raised-button
+    color="primary"
+    class="start-btn"
+    (click)="startGame()">
+    Lancer la partie
+  </button>
+
+</div>

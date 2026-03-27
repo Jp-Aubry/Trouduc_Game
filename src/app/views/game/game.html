@@ -1,0 +1,90 @@
+<main class="game-table">
+
+  @for (seat of seats(); track seat.player.id) {
+    <app-player-seat
+      [player]="seat.player"
+      [position]="seat.position"
+      (selectionChange)="seat.position === 'bottom' && onSelectionChange($event)"
+      [class.active]="currentPlayer() !== null && seat.player.id === currentPlayer()!.id"
+      class="seat {{ seat.position }}"
+      [resetSelection]="selectedCards().length === 0">
+    </app-player-seat>
+  }
+
+  <!-- PLI AU CENTRE -->
+  <section class="table-center">
+
+    <!-- PLI -->
+    <div class="trick-cards">
+      @if (currentTrick()) {
+        @for (card of currentTrick()!.cards; track card.uid; let i = $index) {
+          <app-card
+            [card]="card"
+            [faceUp]="true"
+            class="trick-card"
+            [style.transform]="'translate(-50%, -50%) translate(' + (i * 6) + 'px, ' + (i * 4) + 'px)'"
+            [style.zIndex]="i">
+          </app-card>
+        }
+      }
+    </div>
+
+    <!-- BANDEAU + ACTIONS -->
+    @if (currentPlayer()) {
+      <div class="center-hud">
+
+        <div
+          class="player-info"
+          [class.active]="currentPlayer()!.id === currentPlayerIndex()"
+          [class.role-president]="currentPlayer()!.role === 'PRESIDENT'"
+          [class.role-vice-president]="currentPlayer()!.role === 'VICE_PRESIDENT'"
+          [class.role-trouduc]="currentPlayer()!.role === 'TROUDUC'"
+          [class.role-vice-trouduc]="currentPlayer()!.role === 'VICE_TROUDUC'">
+
+          @if (currentPlayer()!.avatar) {
+            <img
+              class="avatar"
+              [src]="currentPlayer()!.avatar"
+              alt="avatar" />
+          } @else {
+            <div class="avatar fallback">
+              <mat-icon>person</mat-icon>
+            </div>
+          }
+
+          <div class="identity">
+            <span class="name">
+              {{ currentPlayer()!.name || ('Player ' + (currentPlayerIndex() + 1)) }}
+            </span>
+            @if (currentPlayer()!.role) {
+              <span class="role">
+                {{ currentPlayer()!.role }}
+              </span>
+            }
+          </div>
+
+        </div>
+
+        <div class="actions">
+          <button
+            mat-raised-button
+            color="accent"
+            [disabled]="selectedCards().length === 0"
+            (click)="play()">
+            Jouer
+          </button>
+
+          <button
+            mat-raised-button
+            color="warn"
+            (click)="pass()">
+            Passer
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </section>
+
+</main>

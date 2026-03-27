@@ -1,0 +1,22 @@
+<div class="seat" [class.me]="isMe()">
+
+  <div class="player-name">
+    {{ player.name }}
+  </div>
+
+  <div class="cards" [class.compact]="!isMe()">
+
+    @for (card of player.hand; track card.uid) {
+      <app-card
+        [card]="card"
+        [faceUp]="isMe()"
+        [selected]="selectedCards.has(card)"
+        (toggle)="onToggle(card)"
+        [disabled]="isMe() && !isPlayable(card)"
+        >
+      </app-card>
+    }
+
+  </div>
+
+</div>

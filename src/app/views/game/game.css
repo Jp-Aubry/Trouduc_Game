@@ -1,0 +1,314 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  background: #0b3c5d; /* bleu tapis */
+}
+
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 20px;
+  background: linear-gradient(to right, #111, #222);
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+
+  color: white;
+}
+
+/* ---- infos joueur ---- */
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid gold;
+  object-fit: cover;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.turn {
+  margin-left: 6px;
+  font-weight: normal;
+  color: #4caf50;
+}
+
+/* ---- boutons ---- */
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+
+/* ================= Tapis ================= */
+
+.game-table {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #0b4f9c, #062c57);
+  display: grid;
+  grid-template-areas:
+    "top-left    top     top-right"
+    "left       center      right"
+    "bottom-left bottom bottom-right";
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+}
+.game-table {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 90px); /* place pour les boutons */
+  z-index: 0;
+  display: grid;
+  grid-template-areas:
+    "top-left    top     top-right"
+    "left       center      right"
+    "bottom-left bottom bottom-right";
+
+  grid-template-columns: 1fr 1.2fr 1fr;
+  grid-template-rows: 1fr 1.2fr 1fr;
+
+  padding: 24px;
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(circle at center, #1e88e5 0%, #0b3c5d 70%);
+}
+
+/* ================= Centre (pli) ================= */
+
+.table-center {
+  grid-area: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  gap: 20px;
+}
+
+
+/* ---- PLI ---- */
+
+.trick-cards {
+  position: relative;
+  width: 120px;
+  height: 160px;
+}
+
+.trick-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+
+
+/* ---- HUD JOUEUR ---- */
+
+.center-hud {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+
+  padding: 16px 24px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+
+  min-width: 360px;
+}
+
+
+/* joueur */
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar,
+.avatar.fallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #1c1c1c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.identity .name {
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.identity .role {
+  font-size: 12px;
+  opacity: 0.7;
+  text-transform: lowercase;
+}
+
+
+.name {
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px black;
+}
+
+.role {
+  font-size: 11px;
+  opacity: 0.7;
+  text-transform: lowercase;
+}
+
+
+/* boutons */
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+
+/* ----- bandeau joueur ----- */
+
+.center-player-bar {
+  background: rgba(0,0,0,0.5);
+  padding: 6px 14px;
+  border-radius: 20px;
+  color: white;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid gold;
+  object-fit: cover;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.turn {
+  color: #4caf50;
+  margin-left: 4px;
+}
+
+/* ----- cartes du pli ----- */
+
+.trick-cards {
+  display: flex;
+  gap: 10px;
+  min-height: 120px;
+}
+
+/* ----- boutons ----- */
+
+.center-actions {
+  display: flex;
+  gap: 14px;
+}
+
+
+/* ----- Logo au centre ----- */
+.table-logo {
+  width: 200px;
+  opacity: 0.85;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+  animation: fadeIn 0.4s ease-out;
+  border-radius: 50%;
+}
+
+/* ----- Cartes du pli ----- */
+.trick-cards {
+  display: flex;
+  gap: 12px;
+  animation: pop 0.2s ease-out;
+}
+
+@keyframes pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 0.85; }
+}
+
+
+/* cartes du pli */
+.table-center app-card {
+  transform: scale(1.05);
+}
+
+/* ================= Sièges ================= */
+
+.seat {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* mapping grid-area */
+
+.seat.bottom        { grid-area: bottom; }
+.seat.top           { grid-area: top; }
+.seat.left          { grid-area: left; }
+.seat.right         { grid-area: right; }
+.seat.top-left      { grid-area: top-left; }
+.seat.top-right     { grid-area: top-right; }
+.seat.bottom-left   { grid-area: bottom-left; }
+.seat.bottom-right  { grid-area: bottom-right; }
+
+.seat.active {
+  filter: drop-shadow(0 0 12px gold);
+}
+
+
+/* ================= Controls ================= */
+
+.controls {
+  height: 90px;
+  background: #062b44;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.5);
+}

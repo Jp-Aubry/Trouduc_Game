@@ -1,0 +1,77 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.player-name {
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px black;
+  margin-bottom: 4px;
+}
+
+/* =========================
+   JOUEUR ACTIF (BOTTOM)
+   ========================= */
+
+.cards {
+  display: flex;
+  gap: 10px;
+}
+
+/* Carte désactivée */
+.cards app-card[disabled] {
+  opacity: 0.4;           /* rendu transparent pour indiquer l’inactivité */
+  pointer-events: none;   /* désactive le clic */
+  transform: scale(0.95); /* léger effet de retrait */
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+/* Carte jouable – effet hover */
+.cards app-card:not([disabled]):hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+/* =========================
+   JOUEURS NON ACTIFS
+   ========================= */
+
+:host(:not(.bottom)) .cards {
+  position: relative;
+  width: 140px;
+  height: 80px;
+  gap: 0;
+}
+
+/* empilement */
+:host(:not(.bottom)) .cards app-card {
+  position: absolute;
+  left: 50%;
+  transform-origin: bottom center;
+  pointer-events: none; /* pas cliquable */
+}
+
+/* éventail */
+:host(:not(.bottom)) .cards app-card:nth-child(1) {
+  transform: translateX(-50px) rotate(-25deg);
+}
+
+:host(:not(.bottom)) .cards app-card:nth-child(2) {
+  transform: translateX(-25px) rotate(-12deg);
+}
+
+:host(:not(.bottom)) .cards app-card:nth-child(3) {
+  transform: translateX(0) rotate(0deg);
+}
+
+:host(:not(.bottom)) .cards app-card:nth-child(4) {
+  transform: translateX(25px) rotate(12deg);
+}
+
+:host(:not(.bottom)) .cards app-card:nth-child(5) {
+  transform: translateX(50px) rotate(25deg);
+}

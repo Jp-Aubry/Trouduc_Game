@@ -1,0 +1,98 @@
+:host {
+  width: 80px;
+  height: 116px;
+  display: block;
+}
+
+/* ---- Carte ---- */
+.card {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+
+  background: white;              /* empêche le fond bleu de passer */
+  border-radius: 12px;
+  padding: 4px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  transition: transform .15s ease, box-shadow .15s ease;
+  z-index: 2;
+}
+
+/* ---- Image ---- */
+.card-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  background: white;
+}
+
+/* ---- Hover ---- */
+.card:hover {
+  transform: translateY(-8px);
+}
+
+/* ---- Sélection ---- */
+.card.selected {
+  transform: translateY(-14px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.5);
+}
+
+:host([disabled]) {
+  opacity: 0.4;
+  background-color: brown !important;
+  pointer-events: none; /* empêche le clic */
+}
+
+
+:host {
+  width: 80px;
+  height: 116px;
+  display: block;
+}
+
+/* ---- Carte ---- */
+.card {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+
+  background: white;
+  border-radius: 12px;
+  padding: 4px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  transition: transform .15s ease, box-shadow .15s ease;
+  z-index: 2;
+}
+
+/* ---- Image ---- */
+.card-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  background: white;
+}
+
+/* ---- Hover ---- */
+.card:hover {
+  transform: translateY(-8px);
+}
+
+/* ---- Sélection ---- */
+.card.selected {
+  transform: translateY(-14px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.5);
+}
+
+/* ---- Désactivé ---- */
+.card.disabled {
+  opacity: 0.4;
+  pointer-events: none;   /* bloque le clic */
+  cursor: not-allowed;
+  box-shadow: none;
+}

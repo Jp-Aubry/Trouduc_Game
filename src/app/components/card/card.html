@@ -1,0 +1,19 @@
+<div
+  class="card"
+  [class.selected]="selected"
+  [class.disabled]="disabled"
+  (click)="onClick()">
+
+  @if (faceUp) {
+    <img
+      class="card-img"
+      [src]="imagePath"
+      alt="card" />
+  } @else {
+    <img
+      class="card-img"
+      src="assets/cards/back.png"
+      alt="back" />
+  }
+
+</div>

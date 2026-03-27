@@ -1,0 +1,10 @@
+    <div class="trick">
+      @if (game.currentTrick()) {
+        <h4>Cartes sur la table</h4>
+        <span *ngFor="let card of game.currentTrick()!.cards">
+          {{ card.value }} 
+        </span>
+      } @else {
+        <em>Aucune carte posée</em>
+      }
+    </div>
