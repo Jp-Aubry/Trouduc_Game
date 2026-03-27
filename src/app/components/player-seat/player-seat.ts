@@ -27,16 +27,17 @@ export class PlayerSeat implements OnChanges {
   
   constructor(private gameService: GameService) {}
 
-  onToggle(card: Card) {
-    if (this.selectedCards.has(card)) {
-      this.selectedCards.delete(card);
-    } else {
-      this.selectedCards.add(card);
-    }
+ onToggle(card: Card) {
+  if (!this.isPlayable(card)) return; // ✅ bloquer si non jouable
 
-    // émettre une **copie** pour éviter de partager la référence
-    this.selectionChange.emit([...this.selectedCards]);
+  if (this.selectedCards.has(card)) {
+    this.selectedCards.delete(card);
+  } else {
+    this.selectedCards.add(card);
   }
+
+  this.selectionChange.emit([...this.selectedCards]);
+}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['resetSelection'] && changes['resetSelection'].currentValue) {
@@ -46,15 +47,36 @@ export class PlayerSeat implements OnChanges {
   }
 
     // ✅ Détermine si une carte est jouable
-  isPlayable(card: Card): boolean {
-    if (!this.isMe()) return true; // les autres joueurs voient leurs cartes cachées
+ isPlayable(card: Card): boolean {
+  if (!this.isMe()) return true;
 
-    const trick = this.gameService.currentTrick();
-    if (!trick) return true; // pas de pli → tout jouable
-    if (card.value === 'JOKER') return true; // Joker toujours jouable
+  const trick = this.gameService.currentTrick();
+  const alreadySelected = this.selectedCards.has(card);
 
-    // Pour l'instant, on ne gère que la sélection d'une carte seule
-    // Plus tard tu peux gérer paires, triples, etc.
-    return card.strength >= trick.strength;
+  if (!trick) {
+    // Pas de pli : on peut sélectionner uniquement des cartes de même valeur
+    if (this.selectedCards.size > 0 && !alreadySelected) {
+      const first = [...this.selectedCards][0];
+      return card.strength === first.strength;
+    }
+    return true;
   }
+
+  if (card.value === 'JOKER') return true;
+
+  // Carte déjà sélectionnée → toujours "jouable" (pour pouvoir la désélectionner)
+  if (alreadySelected) return true;
+
+  // Quota atteint → bloquer toute nouvelle sélection
+  if (this.selectedCards.size >= trick.count) return false;
+
+  // Doit avoir la même valeur que les cartes déjà sélectionnées
+  if (this.selectedCards.size > 0) {
+    const first = [...this.selectedCards][0];
+    if (card.strength !== first.strength) return false;
+  }
+
+  // Force >= au pli
+  return card.strength >= trick.strength;
+}
 }
