@@ -21,9 +21,7 @@
           [card]="card"
           [faceUp]="true"
           class="trick-card"
-          [style.transform]="'translate(-50%, -50%) rotate(' + getCardRotation(i) + 'deg) translate(' + (i * 2) + 'px, ' + (i * 1) + 'px)'"
-          [style.animation-delay]="'0s'"
-          [style.zIndex]="i">
+          [ngStyle]="getCardStyle(i)">
         </app-card>
       }
     </div>
@@ -97,4 +95,4 @@
     </div>
   }
 
-  </main>
+</main>

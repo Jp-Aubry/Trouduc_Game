@@ -7,6 +7,7 @@ import { SeatPosition } from '../../core/models/seat-position.model';
 import { Card } from '../../core/models/card.model';
 import { CardComponent } from '../../components/card/card';
 import { Player } from '../../core/models/player.model';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-game',
@@ -15,7 +16,8 @@ import { Player } from '../../core/models/player.model';
     CommonModule,
     MaterialModule,
     PlayerSeat,
-    CardComponent
+    CardComponent,
+    NgStyle
   ],
   templateUrl: './game.html',
   styleUrl: './game.css'
@@ -118,6 +120,20 @@ export class GameComponent {
     const rotations = [-8, 5, -3, 9, -6, 4, -7, 3, -5, 8];
     return rotations[index % rotations.length];
   }
+
+  getCardStyle(index: number): Record<string, string> {
+  // Pseudo-aléatoire déterministe basé sur l'index
+  const seed = (index * 2654435761) >>> 0; // hash simple
+  const rotation = ((seed % 3200) / 100) - 16; // entre -16 et +16 degrés
+  const offsetX = ((seed >> 4) % 24) - 12;     // entre -12 et +12 px
+  const offsetY = ((seed >> 8) % 16) - 8;      // entre -8 et +8 px
+
+  return {
+    transform: `translate(-50%, -50%) rotate(${rotation}deg) translate(${offsetX}px, ${offsetY}px)`,
+    zIndex: String(index),
+    animationDelay: '0s',
+  };
+}
 
   confirmTrick() {
     this.gameService.confirmTrick();

@@ -86,8 +86,9 @@
 
 .trick-cards {
   position: relative;
-  width: 120px;
-  height: 160px;
+  width: 160px;
+  height: 200px;
+  overflow: visible; /* ✅ permet aux cartes de déborder */
 }
 
 /* ---- Animation carte vers le tapis ---- */
