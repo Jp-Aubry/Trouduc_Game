@@ -37,7 +37,11 @@ export class GameService {
   private readonly _trickWinner = signal<Player | null>(null);
   readonly trickWinner = this._trickWinner.asReadonly();
 
+  private readonly _trickId = signal<number>(0);
+  readonly trickId = this._trickId.asReadonly();
 
+  private readonly _trickStack = signal<Card[]>([]);
+  readonly trickStack = this._trickStack.asReadonly();
 
   constructor(private deckService: DeckService) { }
 
@@ -256,6 +260,12 @@ export class GameService {
     }
 
     // enregistrer le pli
+    // enregistrer le pli
+    this._trickId.update(id => id + 1);
+    this._trickStack.update(stack => [
+      ...stack,
+      ...cards.map(c => ({ ...c, uid: crypto.randomUUID() })) // ✅ nouvel uid unique
+    ]);
     this._currentTrick.set({
       cards: cards.map(c => ({ ...c })),
       count: cards.length,
@@ -389,16 +399,22 @@ export class GameService {
   }
 
   confirmTrick() {
-    const trick = this._currentTrick();
     const winner = this._trickWinner();
-
     if (!winner) return;
 
     const winnerIndex = this._players().findIndex(p => p.id === winner.id);
 
+    // ✅ Alimenter l'historique
+    this._trickHistory.set({
+      cards: [...this._trickStack()],
+      winnerId: winner.id,
+      plays: [], // à compléter si tu veux stocker les Trick[] individuels
+    });
+
     this._currentTrick.set(null);
     this._passedPlayers.set(new Set());
     this._trickWinner.set(null);
+    this._trickStack.set([]); // ✅ vider le tas visuel
 
     if (winnerIndex >= 0) {
       this._currentPlayerIndex.set(winnerIndex);

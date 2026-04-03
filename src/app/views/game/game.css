@@ -2,18 +2,16 @@
   display: block;
   width: 100%;
   height: 100vh;
-  background: #0b3c5d; /* bleu tapis */
+  background: #0b3c5d;
 }
 
 .player-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 10px 20px;
   background: linear-gradient(to right, #111, #222);
   border-bottom: 2px solid rgba(255,255,255,0.1);
-
   color: white;
 }
 
@@ -51,40 +49,23 @@
   gap: 12px;
 }
 
-
 /* ================= Tapis ================= */
 
 .game-table {
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, #0b4f9c, #062c57);
-  display: grid;
-  grid-template-areas:
-    "top-left    top     top-right"
-    "left       center      right"
-    "bottom-left bottom bottom-right";
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-}
-.game-table {
   position: relative;
   width: 100%;
-  height: calc(100vh - 90px); /* place pour les boutons */
+  height: calc(100vh - 90px);
   z-index: 0;
   display: grid;
   grid-template-areas:
     "top-left    top     top-right"
     "left       center      right"
     "bottom-left bottom bottom-right";
-
   grid-template-columns: 1fr 1.2fr 1fr;
   grid-template-rows: 1fr 1.2fr 1fr;
-
   padding: 24px;
   box-sizing: border-box;
-
-  background:
-    radial-gradient(circle at center, #1e88e5 0%, #0b3c5d 70%);
+  background: radial-gradient(circle at center, #1e88e5 0%, #0b3c5d 70%);
 }
 
 /* ================= Centre (pli) ================= */
@@ -95,29 +76,44 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   width: 100%;
   height: 100%;
   padding: 24px;
   gap: 20px;
 }
 
-
 /* ---- PLI ---- */
 
 .trick-cards {
   position: relative;
-  width: 120px;
-  height: 160px;
+  width: 160px;
+  height: 200px;
+  overflow: visible; /* ✅ permet aux cartes de déborder */
+}
+
+/* ---- Animation carte vers le tapis ---- */
+
+@keyframes cardToTrick {
+  from {
+    transform: translate(-50%, 300px) scale(0.5);
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .trick-card {
   position: absolute;
   top: 50%;
   left: 50%;
+  animation: cardToTrick 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-
+.trick-card:nth-child(1) { animation-delay: 0s; }
+.trick-card:nth-child(2) { animation-delay: 0.05s; }
+.trick-card:nth-child(3) { animation-delay: 0.10s; }
+.trick-card:nth-child(4) { animation-delay: 0.15s; }
 
 /* ---- HUD JOUEUR ---- */
 
@@ -125,18 +121,12 @@
   display: flex;
   align-items: center;
   gap: 32px;
-
   padding: 16px 24px;
   border-radius: 14px;
-
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(6px);
-
   min-width: 360px;
 }
-
-
-/* joueur */
 
 .player-info {
   display: flex;
@@ -173,7 +163,6 @@
   text-transform: lowercase;
 }
 
-
 .name {
   color: white;
   font-weight: 600;
@@ -186,64 +175,13 @@
   text-transform: lowercase;
 }
 
-
-/* boutons */
-
 .actions {
   display: flex;
   gap: 10px;
 }
 
+/* ---- Logo ---- */
 
-/* ----- bandeau joueur ----- */
-
-.center-player-bar {
-  background: rgba(0,0,0,0.5);
-  padding: 6px 14px;
-  border-radius: 20px;
-  color: white;
-}
-
-.player-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid gold;
-  object-fit: cover;
-}
-
-.name {
-  font-weight: bold;
-}
-
-.turn {
-  color: #4caf50;
-  margin-left: 4px;
-}
-
-/* ----- cartes du pli ----- */
-
-.trick-cards {
-  display: flex;
-  gap: 10px;
-  min-height: 120px;
-}
-
-/* ----- boutons ----- */
-
-.center-actions {
-  display: flex;
-  gap: 14px;
-}
-
-
-/* ----- Logo au centre ----- */
 .table-logo {
   width: 200px;
   opacity: 0.85;
@@ -252,27 +190,11 @@
   border-radius: 50%;
 }
 
-/* ----- Cartes du pli ----- */
-.trick-cards {
-  display: flex;
-  gap: 12px;
-  animation: pop 0.2s ease-out;
-}
-
-@keyframes pop {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
+/* ================= Keyframes ================= */
 
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 0.85; }
-}
-
-
-/* cartes du pli */
-.table-center app-card {
-  transform: scale(1.05);
 }
 
 /* ================= Sièges ================= */
@@ -282,8 +204,6 @@
   justify-content: center;
   align-items: center;
 }
-
-/* mapping grid-area */
 
 .seat.bottom        { grid-area: bottom; }
 .seat.top           { grid-area: top; }
@@ -298,20 +218,19 @@
   filter: drop-shadow(0 0 12px gold);
 }
 
-
 /* ================= Controls ================= */
 
 .controls {
   height: 90px;
   background: #062b44;
-
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 24px;
-
   box-shadow: 0 -6px 20px rgba(0,0,0,0.5);
 }
+
+/* ================= Overlay fin de pli ================= */
 
 .trick-winner-overlay {
   position: fixed;
