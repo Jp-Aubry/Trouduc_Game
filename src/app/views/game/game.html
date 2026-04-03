@@ -16,17 +16,15 @@
 
     <!-- PLI -->
     <div class="trick-cards" [attr.data-trick-id]="trickId()">
-      @if (currentTrick()) {
-        @for (card of currentTrick()!.cards; track card.uid; let i = $index) {
-          <app-card
-            [card]="card"
-            [faceUp]="true"
-            class="trick-card"
-            [style.transform]="'translate(-50%, -50%) translate(' + (i * 6) + 'px, ' + (i * 4) + 'px)'"
-            [style.animation-delay]="(i * 0.05) + 's'"
-            [style.zIndex]="i">
-          </app-card>
-        }
+      @for (card of trickStack(); track card.uid; let i = $index) {
+        <app-card
+          [card]="card"
+          [faceUp]="true"
+          class="trick-card"
+          [style.transform]="'translate(-50%, -50%) rotate(' + getCardRotation(i) + 'deg) translate(' + (i * 2) + 'px, ' + (i * 1) + 'px)'"
+          [style.animation-delay]="'0s'"
+          [style.zIndex]="i">
+        </app-card>
       }
     </div>
 

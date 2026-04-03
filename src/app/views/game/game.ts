@@ -107,8 +107,17 @@ export class GameComponent {
   }
 
   get trickId() {
-  return this.gameService.trickId;
-}
+    return this.gameService.trickId;
+  }
+
+  get trickStack() {
+    return this.gameService.trickStack;
+  }
+
+  getCardRotation(index: number): number {
+    const rotations = [-8, 5, -3, 9, -6, 4, -7, 3, -5, 8];
+    return rotations[index % rotations.length];
+  }
 
   confirmTrick() {
     this.gameService.confirmTrick();
