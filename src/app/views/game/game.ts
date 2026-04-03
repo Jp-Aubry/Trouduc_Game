@@ -106,6 +106,10 @@ export class GameComponent {
     return this.gameService.trickWinner;
   }
 
+  get trickId() {
+  return this.gameService.trickId;
+}
+
   confirmTrick() {
     this.gameService.confirmTrick();
   }

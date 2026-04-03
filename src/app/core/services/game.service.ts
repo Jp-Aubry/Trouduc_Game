@@ -37,6 +37,9 @@ export class GameService {
   private readonly _trickWinner = signal<Player | null>(null);
   readonly trickWinner = this._trickWinner.asReadonly();
 
+  private readonly _trickId = signal<number>(0);
+  readonly trickId = this._trickId.asReadonly();
+
 
 
   constructor(private deckService: DeckService) { }
@@ -256,6 +259,8 @@ export class GameService {
     }
 
     // enregistrer le pli
+    // enregistrer le pli
+    this._trickId.update(id => id + 1); // ✅ force le re-render pour l'animation
     this._currentTrick.set({
       cards: cards.map(c => ({ ...c })),
       count: cards.length,
