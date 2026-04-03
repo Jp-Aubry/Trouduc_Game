@@ -312,3 +312,40 @@
 
   box-shadow: 0 -6px 20px rgba(0,0,0,0.5);
 }
+
+.trick-winner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.trick-winner-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.trick-winner-card mat-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  color: gold;
+}
+
+.trick-winner-card small {
+  font-size: 0.9rem;
+  font-weight: normal;
+  color: gray;
+}

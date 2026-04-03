@@ -101,4 +101,12 @@ export class GameComponent {
     this.gameService.playCards(player.id, cardsToPlay);
     this.selectedCards.set([]);
   }
+
+  get trickWinner() {
+    return this.gameService.trickWinner;
+  }
+
+  confirmTrick() {
+    this.gameService.confirmTrick();
+  }
 }

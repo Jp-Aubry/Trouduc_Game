@@ -87,4 +87,15 @@
 
   </section>
 
+  <!-- ✅ OVERLAY FIN DE PLI -->
+  @if (trickWinner()) {
+    <div class="trick-winner-overlay" (click)="confirmTrick()">
+      <div class="trick-winner-card">
+        <mat-icon>emoji_events</mat-icon>
+        <span>{{ trickWinner()!.name }} remporte le pli !</span>
+        <small>Cliquez pour continuer</small>
+      </div>
+    </div>
+  }
+
 </main>
