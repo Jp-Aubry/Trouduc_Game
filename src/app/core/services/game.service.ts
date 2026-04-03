@@ -17,7 +17,7 @@ export class GameService {
   private readonly _phase = signal<GamePhase>('SETUP');
   readonly phase = this._phase.asReadonly();
 
-    private readonly _trickHistory = signal<TrickHistoryEntry | null>(null)
+  private readonly _trickHistory = signal<TrickHistoryEntry | null>(null)
   readonly trickHistory = this._trickHistory.asReadonly();
 
   private readonly _currentPlayerIndex = signal<number>(0);
@@ -33,6 +33,9 @@ export class GameService {
 
   private readonly _finishOrder = signal<number[]>([]);
   readonly finishOrder = this._finishOrder.asReadonly();
+
+  private readonly _trickWinner = signal<Player | null>(null);
+  readonly trickWinner = this._trickWinner.asReadonly();
 
 
 
@@ -99,98 +102,98 @@ export class GameService {
     this.assignRolesByOrder(shuffled);
   }
 
- private assignRolesByOrder(orderedPlayers: Player[]) {
+  private assignRolesByOrder(orderedPlayers: Player[]) {
 
-  // ✅ PREMIER TOUR → tout le monde neutre
-  if (this._round() === 1) {
-    const updatedPlayers = orderedPlayers.map(player => ({
+    // ✅ PREMIER TOUR → tout le monde neutre
+    if (this._round() === 1) {
+      const updatedPlayers = orderedPlayers.map(player => ({
+        ...player,
+        role: 'NEUTRE' as Role,
+      }));
+
+      this._players.set(updatedPlayers);
+      return;
+    }
+
+    // ✅ TOURS SUIVANTS → logique normale
+    const count = orderedPlayers.length;
+    const roles: Role[] = [];
+
+    roles.push('PRESIDENT');
+    roles.push('VICE_PRESIDENT');
+
+    const intermediatesCount = Math.max(0, count - 4);
+    for (let i = 0; i < intermediatesCount; i++) {
+      roles.push('NEUTRE');
+    }
+
+    roles.push('VICE_TROUDUC');
+    roles.push('TROUDUC');
+
+    const updatedPlayers = orderedPlayers.map((player, index) => ({
       ...player,
-      role: 'NEUTRE' as Role,
+      role: roles[index],
     }));
 
     this._players.set(updatedPlayers);
-    return;
   }
-
-  // ✅ TOURS SUIVANTS → logique normale
-  const count = orderedPlayers.length;
-  const roles: Role[] = [];
-
-  roles.push('PRESIDENT');
-  roles.push('VICE_PRESIDENT');
-
-  const intermediatesCount = Math.max(0, count - 4);
-  for (let i = 0; i < intermediatesCount; i++) {
-    roles.push('NEUTRE');
-  }
-
-  roles.push('VICE_TROUDUC');
-  roles.push('TROUDUC');
-
-  const updatedPlayers = orderedPlayers.map((player, index) => ({
-    ...player,
-    role: roles[index],
-  }));
-
-  this._players.set(updatedPlayers);
-}
 
   // -------------------
   // REDISTRIBUTION
   // -------------------
 
-redistributeCards() {
-  const players = this._players().map(player => ({
-    ...player,
-    hand: [...player.hand],
-  }));
+  redistributeCards() {
+    const players = this._players().map(player => ({
+      ...player,
+      hand: [...player.hand],
+    }));
 
-  // ✅ Pas de redistribution à 3 joueurs
-  if (players.length < 4) {
+    // ✅ Pas de redistribution à 3 joueurs
+    if (players.length < 4) {
+      this._players.set(players);
+      this._phase.set('PLAYING');
+      return;
+    }
+
+    // ✅ NOUVEAU : détecter si des rôles existent
+    const hasRoles = players.some(p => p.role !== 'NEUTRE');
+
+    // 👉 Premier tour → pas de redistribution
+    if (!hasRoles) {
+      this._players.set(players);
+      this._phase.set('PLAYING');
+      return;
+    }
+
+    // ✅ Récupération des rôles
+    const president = players.find(p => p.role === 'PRESIDENT');
+    const vicePresident = players.find(p => p.role === 'VICE_PRESIDENT');
+    const viceTrouduc = players.find(p => p.role === 'VICE_TROUDUC');
+    const trouduc = players.find(p => p.role === 'TROUDUC');
+
+    // ⚠️ Sécurité (mais ne devrait plus arriver normalement)
+    if (!president || !trouduc) {
+      console.warn('Redistribution ignorée : rôles incomplets');
+      this._players.set(players);
+      this._phase.set('PLAYING');
+      return;
+    }
+
+    // ✅ Échanges
+    this.exchangeCards(trouduc, president, 2);
+
+    if (vicePresident && viceTrouduc) {
+      this.exchangeCards(viceTrouduc, vicePresident, 1);
+    }
+
+    // Re-trier après échanges
+    players.forEach(player => {
+      player.hand.sort((a, b) => a.strength - b.strength);
+    });
+
     this._players.set(players);
     this._phase.set('PLAYING');
-    return;
   }
-
-  // ✅ NOUVEAU : détecter si des rôles existent
-  const hasRoles = players.some(p => p.role !== 'NEUTRE');
-
-  // 👉 Premier tour → pas de redistribution
-  if (!hasRoles) {
-    this._players.set(players);
-    this._phase.set('PLAYING');
-    return;
-  }
-
-  // ✅ Récupération des rôles
-  const president = players.find(p => p.role === 'PRESIDENT');
-  const vicePresident = players.find(p => p.role === 'VICE_PRESIDENT');
-  const viceTrouduc = players.find(p => p.role === 'VICE_TROUDUC');
-  const trouduc = players.find(p => p.role === 'TROUDUC');
-
-  // ⚠️ Sécurité (mais ne devrait plus arriver normalement)
-  if (!president || !trouduc) {
-    console.warn('Redistribution ignorée : rôles incomplets');
-    this._players.set(players);
-    this._phase.set('PLAYING');
-    return;
-  }
-
-  // ✅ Échanges
-  this.exchangeCards(trouduc, president, 2);
-
-  if (vicePresident && viceTrouduc) {
-    this.exchangeCards(viceTrouduc, vicePresident, 1);
-  }
-
-  // Re-trier après échanges
-players.forEach(player => {
-  player.hand.sort((a, b) => a.strength - b.strength);
-});
-
-  this._players.set(players);
-  this._phase.set('PLAYING');
-}
   private exchangeCards(from: Player, to: Player, count: number) {
     from.hand.sort((a, b) => b.strength - a.strength);
     to.hand.sort((a, b) => a.strength - b.strength);
@@ -207,79 +210,86 @@ players.forEach(player => {
   // -------------------
 
   playCards(playerId: number, cards: Card[]) {
-  if (this._phase() !== 'PLAYING') {
-    throw new Error('Le jeu n’est pas en cours');
-  }
-
-  if (!this.isValidPlay(cards)) {
-    throw new Error('Coup invalide');
-  }
-
-  const players = this._players().map(p => ({
-    ...p,
-    hand: [...p.hand],
-  }));
-
-  const player = players.find(p => p.id === playerId);
-  if (!player) return;
-
-  // retirer cartes
-  cards.forEach(card => {
-    const index = player.hand.findIndex(c => c.uid === card.uid);
-    if (index >= 0) {
-      player.hand.splice(index, 1);
-    }
-  });
-
-  // joueur fini ?
-  if (player.hand.length === 0) {
-    const order = [...this._finishOrder()];
-    if (!order.includes(player.id)) {
-      order.push(player.id);
-      this._finishOrder.set(order);
+    if (this._phase() !== 'PLAYING') {
+      throw new Error('Le jeu n\'est pas en cours');
     }
 
-    this._players.set(players);
-    this.checkEndOfRound();
-    return;
-  }
+    if (!this.isValidPlay(cards)) {
+      throw new Error('Coup invalide');
+    }
 
-  // joker
-  if (this.isJokerPlay(cards)) {
-    this._currentTrick.set(null);
+    const players = this._players().map(p => ({
+      ...p,
+      hand: [...p.hand],
+    }));
+
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
+
+    // retirer cartes
+    cards.forEach(card => {
+      const index = player.hand.findIndex(c => c.uid === card.uid);
+      if (index >= 0) {
+        player.hand.splice(index, 1);
+      }
+    });
+
+    // joueur fini ?
+    if (player.hand.length === 0) {
+      const order = [...this._finishOrder()];
+      if (!order.includes(player.id)) {
+        order.push(player.id);
+        this._finishOrder.set(order);
+      }
+
+      this._players.set(players);
+      this.checkEndOfRound();
+      return;
+    }
+
+    // joker
+    if (this.isJokerPlay(cards)) {
+      this._currentTrick.set(null);
+      this._passedPlayers.set(new Set());
+      this._players.set(players);
+      return;
+    }
+
+    // enregistrer le pli
+    this._currentTrick.set({
+      cards: cards.map(c => ({ ...c })),
+      count: cards.length,
+      strength: this.getPlayStrength(cards),
+      playedBy: playerId,
+    });
+
     this._passedPlayers.set(new Set());
     this._players.set(players);
-    return;
+
+    // ✅ Carte maître (2 ou Joker) → fin de pli immédiate
+    if (this.isMasterPlay(cards)) {
+      const winner = players.find(p => p.id === playerId) ?? null;
+      this._trickWinner.set(winner);
+      return;
+    }
+
+    // fin de pli normale ?
+    if (this.checkEndOfTrick()) return;
+
+    this.nextPlayer();
   }
-
-  // enregistrer le pli
-  this._currentTrick.set({
-  cards: cards.map(c => ({ ...c })), // copie profonde des cartes
-  count: cards.length,
-  strength: this.getPlayStrength(cards),
-  playedBy: playerId,
-});
-
-  this._passedPlayers.set(new Set());
-  this._players.set(players);
-
-  // fin de pli ?
-  if (this.checkEndOfTrick()) return;
-
-  this.nextPlayer();
-}
 
   pass(playerId: number) {
-  const passed = new Set(this._passedPlayers());
-  passed.add(playerId);
-  this._passedPlayers.set(passed);
+    const passed = new Set(this._passedPlayers());
+    passed.add(playerId);
+    this._passedPlayers.set(passed);
 
-  if (this.checkEndOfTrick()) {
-    return; // gagnant rejoue
+    if (this.checkEndOfTrick()) {
+      return; // gagnant rejoue
+    }
+
+    this.nextPlayer();
   }
-
-  this.nextPlayer();
-}
 
 
   // -------------------
@@ -298,38 +308,38 @@ players.forEach(player => {
     return Math.max(...cards.map(card => card.strength));
   }
 
-private isValidPlay(cards: Card[]): boolean {
+  private isValidPlay(cards: Card[]): boolean {
 
-  // 1️⃣ coup vide
-  if (!cards || cards.length === 0) {
-    return false;
+    // 1️⃣ coup vide
+    if (!cards || cards.length === 0) {
+      return false;
+    }
+
+    // 2️⃣ joker seul
+    if (this.isJokerPlay(cards)) {
+      return true;
+    }
+
+    // 3️⃣ toutes les cartes jouées doivent être identiques
+    if (!this.allSameValue(cards)) {
+      return false;
+    }
+
+    const currentTrick = this._currentTrick();
+
+    // 4️⃣ premier coup du pli → tout est autorisé
+    if (!currentTrick) {
+      return true;
+    }
+
+    // 5️⃣ même nombre de cartes que le pli courant
+    if (cards.length !== currentTrick.count) {
+      return false;
+    }
+
+    // 6️⃣ force STRICTEMENT supérieure
+    return this.getPlayStrength(cards) >= currentTrick.strength;
   }
-
-  // 2️⃣ joker seul
-  if (this.isJokerPlay(cards)) {
-    return true;
-  }
-
-  // 3️⃣ toutes les cartes jouées doivent être identiques
-  if (!this.allSameValue(cards)) {
-    return false;
-  }
-
-  const currentTrick = this._currentTrick();
-
-  // 4️⃣ premier coup du pli → tout est autorisé
-  if (!currentTrick) {
-    return true;
-  }
-
-  // 5️⃣ même nombre de cartes que le pli courant
-  if (cards.length !== currentTrick.count) {
-    return false;
-  }
-
-  // 6️⃣ force STRICTEMENT supérieure
-  return this.getPlayStrength(cards) >= currentTrick.strength;
-}
 
 
   // -------------------
@@ -341,17 +351,17 @@ private isValidPlay(cards: Card[]): boolean {
   }
 
   nextPlayer() {
-  const players = this._players();
-  const passed = this._passedPlayers();
+    const players = this._players();
+    const passed = this._passedPlayers();
 
-  let nextIndex = this._currentPlayerIndex();
+    let nextIndex = this._currentPlayerIndex();
 
-  do {
-    nextIndex = (nextIndex + 1) % players.length;
-  } while (passed.has(players[nextIndex].id));
+    do {
+      nextIndex = (nextIndex + 1) % players.length;
+    } while (passed.has(players[nextIndex].id));
 
-  this._currentPlayerIndex.set(nextIndex);
-}
+    this._currentPlayerIndex.set(nextIndex);
+  }
 
 
   private checkEndOfTrick(): boolean {
@@ -362,22 +372,37 @@ private isValidPlay(cards: Card[]): boolean {
     if (!trick) return false;
 
     if (passed.size === players.length - 1) {
+      const winner = players.find(p => p.id === trick.playedBy) ?? null;
 
-      const winnerIndex = players.findIndex(
-        p => p.id === trick.playedBy
-      );
+      // ✅ Signaler le gagnant AVANT de vider le pli
+      this._trickWinner.set(winner);
 
-      this._currentTrick.set(null);
-      this._passedPlayers.set(new Set());
-
-      if (winnerIndex >= 0) {
-        this._currentPlayerIndex.set(winnerIndex);
-      }
-
-      return true; // ✅ pli terminé
+      return true;
     }
 
     return false;
+  }
+
+  private isMasterPlay(cards: Card[]): boolean {
+    if (this.isJokerPlay(cards)) return true;
+    return cards.every(c => c.value === '2');
+  }
+
+  confirmTrick() {
+    const trick = this._currentTrick();
+    const winner = this._trickWinner();
+
+    if (!winner) return;
+
+    const winnerIndex = this._players().findIndex(p => p.id === winner.id);
+
+    this._currentTrick.set(null);
+    this._passedPlayers.set(new Set());
+    this._trickWinner.set(null);
+
+    if (winnerIndex >= 0) {
+      this._currentPlayerIndex.set(winnerIndex);
+    }
   }
 
 
