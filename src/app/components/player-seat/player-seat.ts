@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Player } from '../../core/models/player.model';
 import { SeatPosition } from '../../core/models/seat-position.model';
 import { CardComponent } from '../card/card';
-import { Card } from '../../core/models/card.model';
+import { Card, CARD_STRENGTH, CardValue } from '../../core/models/card.model';
 import { GameService } from '../../core/services/game.service';
 
 @Component({
@@ -18,65 +18,107 @@ export class PlayerSeat implements OnChanges {
   @Input({ required: true }) player!: Player;
   @Input({ required: true }) position!: SeatPosition;
   @Input() playingCards: Card[] = [];
-  @Input() resetSelection = false; // pour vider la sélection depuis le parent
+  @Input() resetSelection = false;
   @Output() selectionChange = new EventEmitter<Card[]>();
 
   selectedCards = new Set<Card>();
   isMe = computed(() => this.position === 'bottom');
 
-  
+  // ✅ Joker
+  showJokerMenu = false;
+  pendingJoker: Card | null = null;
+
   constructor(private gameService: GameService) {}
 
- onToggle(card: Card) {
-  if (!this.isPlayable(card)) return; // ✅ bloquer si non jouable
+  onToggle(card: Card) {
+    if (!this.isPlayable(card)) return;
 
-  if (this.selectedCards.has(card)) {
-    this.selectedCards.delete(card);
-  } else {
-    this.selectedCards.add(card);
+    // ✅ Si c'est un Joker → ouvrir le menu
+    if (card.value === 'JOKER' && !this.selectedCards.has(card)) {
+      this.pendingJoker = card;
+      this.showJokerMenu = true;
+      return;
+    }
+
+    if (this.selectedCards.has(card)) {
+      this.selectedCards.delete(card);
+    } else {
+      this.selectedCards.add(card);
+    }
+
+    this.selectionChange.emit([...this.selectedCards]);
   }
 
-  this.selectionChange.emit([...this.selectedCards]);
-}
+  onJokerValueSelected(value: CardValue) {
+    if (!this.pendingJoker) return;
+
+    // Cloner le joker avec la valeur choisie
+    const jokerWithValue: Card = {
+      ...this.pendingJoker,
+      value,
+    };
+
+    this.selectedCards.add(jokerWithValue);
+    this.selectionChange.emit([...this.selectedCards]);
+
+    this.showJokerMenu = false;
+    this.pendingJoker = null;
+  }
+
+  cancelJokerMenu() {
+    this.showJokerMenu = false;
+    this.pendingJoker = null;
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['resetSelection'] && changes['resetSelection'].currentValue) {
       this.selectedCards.clear();
-      this.selectionChange.emit([]); // notifier le parent
+      this.showJokerMenu = false;
+      this.pendingJoker = null;
+      this.selectionChange.emit([]);
     }
   }
 
-    // ✅ Détermine si une carte est jouable
- isPlayable(card: Card): boolean {
-  if (!this.isMe()) return true;
+  isPlayable(card: Card): boolean {
+    if (!this.isMe()) return true;
 
-  const trick = this.gameService.currentTrick();
-  const alreadySelected = this.selectedCards.has(card);
+    const trick = this.gameService.currentTrick();
+    const alreadySelected = this.selectedCards.has(card);
 
-  if (!trick) {
-    // Pas de pli : on peut sélectionner uniquement des cartes de même valeur
-    if (this.selectedCards.size > 0 && !alreadySelected) {
+    if (!trick) {
+      if (this.selectedCards.size > 0 && !alreadySelected) {
+        const first = [...this.selectedCards][0];
+        return card.strength === first.strength;
+      }
+      return true;
+    }
+
+    if (card.value === 'JOKER') return true;
+
+    if (alreadySelected) return true;
+
+    if (this.selectedCards.size >= trick.count) return false;
+
+    if (this.selectedCards.size > 0) {
       const first = [...this.selectedCards][0];
-      return card.strength === first.strength;
+      if (card.strength !== first.strength) return false;
     }
-    return true;
+
+    return card.strength >= trick.strength;
   }
 
-  if (card.value === 'JOKER') return true;
+  get jokerValues(): CardValue[] {
+  const allValues: CardValue[] = ['2', 'A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3'];
+  
+  const trick = this.gameService.currentTrick();
 
-  // Carte déjà sélectionnée → toujours "jouable" (pour pouvoir la désélectionner)
-  if (alreadySelected) return true;
+  // Pas de pli → toutes les valeurs sont disponibles sauf JOKER
+  if (!trick) return allValues;
 
-  // Quota atteint → bloquer toute nouvelle sélection
-  if (this.selectedCards.size >= trick.count) return false;
-
-  // Doit avoir la même valeur que les cartes déjà sélectionnées
-  if (this.selectedCards.size > 0) {
-    const first = [...this.selectedCards][0];
-    if (card.strength !== first.strength) return false;
-  }
-
-  // Force >= au pli
-  return card.strength >= trick.strength;
+  // Filtrer uniquement les valeurs de force >= au pli courant
+  return allValues.filter(value => {
+    const strength = CARD_STRENGTH[value];
+    return strength >= trick.strength;
+  });
 }
 }
