@@ -1,6 +1,6 @@
 <main class="game-table">
 
-  @for (seat of seats(); track seat.player.id) {
+@for (seat of seats(); track seat.player.id + '-' + seat.position) {
     <app-player-seat
       [player]="seat.player"
       [position]="seat.position"

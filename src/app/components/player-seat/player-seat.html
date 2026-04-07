@@ -5,18 +5,32 @@
   </div>
 
   <div class="cards" [class.compact]="!isMe()">
-
     @for (card of player.hand; track card.uid) {
       <app-card
         [card]="card"
-        [faceUp]="isMe()"
+        [faceUp]="true"
         [selected]="selectedCards.has(card)"
         (toggle)="onToggle(card)"
-        [disabled]="isMe() && !isPlayable(card)"
-        >
+        [disabled]="isMe() && !isPlayable(card)">
       </app-card>
     }
-
   </div>
+
+  <!-- ✅ Menu Joker -->
+  @if (showJokerMenu) {
+    <div class="joker-overlay" (click)="cancelJokerMenu()">
+      <div class="joker-menu" (click)="$event.stopPropagation()">
+        <p class="joker-title">Choisir la valeur du Joker</p>
+        <div class="joker-values">
+          @for (value of jokerValues; track value) {
+            <button class="joker-value-btn" (click)="onJokerValueSelected(value)">
+              {{ value }}
+            </button>
+          }
+        </div>
+        <button class="joker-cancel" (click)="cancelJokerMenu()">Annuler</button>
+      </div>
+    </div>
+  }
 
 </div>

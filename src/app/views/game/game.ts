@@ -67,9 +67,18 @@ export class GameComponent {
 
   readonly seats = computed(() => {
     const players = this.players();
+    const currentIndex = this.currentPlayerIndex();
     const layout = this.seatLayouts[players.length];
+
     if (!layout) return [];
-    return players.map((player, index) => ({
+
+    // ✅ Joueur courant toujours en bas, les autres tournent autour
+    const reordered = [
+      ...players.slice(currentIndex),
+      ...players.slice(0, currentIndex),
+    ];
+
+    return reordered.map((player, index) => ({
       player,
       position: layout[index],
     }));
@@ -116,24 +125,18 @@ export class GameComponent {
     return this.gameService.trickStack;
   }
 
-  getCardRotation(index: number): number {
-    const rotations = [-8, 5, -3, 9, -6, 4, -7, 3, -5, 8];
-    return rotations[index % rotations.length];
-  }
-
   getCardStyle(index: number): Record<string, string> {
-  // Pseudo-aléatoire déterministe basé sur l'index
-  const seed = (index * 2654435761) >>> 0; // hash simple
-  const rotation = ((seed % 3200) / 100) - 16; // entre -16 et +16 degrés
-  const offsetX = ((seed >> 4) % 24) - 12;     // entre -12 et +12 px
-  const offsetY = ((seed >> 8) % 16) - 8;      // entre -8 et +8 px
+    const seed = (index * 2654435761) >>> 0;
+    const rotation = ((seed % 3200) / 100) - 16;
+    const offsetX = ((seed >> 4) % 24) - 12;
+    const offsetY = ((seed >> 8) % 16) - 8;
 
-  return {
-    transform: `translate(-50%, -50%) rotate(${rotation}deg) translate(${offsetX}px, ${offsetY}px)`,
-    zIndex: String(index),
-    animationDelay: '0s',
-  };
-}
+    return {
+      transform: `translate(-50%, -50%) rotate(${rotation}deg) translate(${offsetX}px, ${offsetY}px)`,
+      zIndex: String(index),
+      animationDelay: '0s',
+    };
+  }
 
   confirmTrick() {
     this.gameService.confirmTrick();
